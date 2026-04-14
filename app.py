@@ -22,13 +22,14 @@ st.set_page_config(
 st.markdown("""
 <style>
     .stApp {
-        background-color: #FFFFFF;
+        background-color: #E0F2FE;
+        color: #0F172A;
     }
     .main-title {
-        color: #1E3A8A;
-        font-size: 2.5rem;
+        color: #1E40AF;
+        font-size: 4rem;
         font-weight: bold;
-        margin-bottom: 0px;
+        margin-bottom: 5px;
     }
     .sub-title {
         color: #64748B;
