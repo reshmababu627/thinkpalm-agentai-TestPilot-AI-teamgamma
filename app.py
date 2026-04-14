@@ -18,41 +18,27 @@ st.set_page_config(
     layout="wide",
 )
 
-# Standard CSS
+# Custom UI CSS
 st.markdown("""
 <style>
     .stApp {
         background-color: #E0F2FE;
         color: #0F172A;
     }
-    .main-title {
-        color: #1E40AF;
-        font-size: 4rem;
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-    .sub-title {
-        color: #64748B;
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
+    label, p, span, h1, h2, h3 {
+        color: #0F172A !important;
     }
     .stButton>button {
         background-color: #2563EB;
         color: white;
-        border-radius: 5px;
-        width: 100%;
-        height: 3rem;
-    }
-    .stButton>button:hover {
-        background-color: #1E40AF;
-        color: white;
+        border-radius: 8px;
     }
 </style>
 """, unsafe_allow_html=True)
 
 def main():
-    st.markdown("<p class='main-title'>AI Test Automation Assistant</p>", unsafe_allow_html=True)
-    st.markdown("<p class='sub-title'>Generate Gherkin Scenarios and Playwright Scripts for OrangeHRM</p>", unsafe_allow_html=True)
+    st.title("AI Test Automation Assistant")
+    st.write("Generate professional Gherkin scenarios and Playwright scripts effortlessly.")
 
     # Sidebar
     with st.sidebar:
@@ -60,17 +46,18 @@ def main():
         api_key = os.getenv("OPENROUTER_API_KEY", "")
         
         if not api_key:
-            st.error("API Key missing in .env")
+            st.error("Missing OpenRouter Key in .env")
         else:
-            st.success("Connected to OpenRouter")
+            st.success("API Key Loaded Successfully")
             
         st.divider()
-        flow_option = st.selectbox(
-            "Select Workflow",
-            ["Login Flow", "User Management Flow", "Job Titles Flow", "Pay Grades Flow"]
-        )
+        st.info("🌐 **Target:** OrangeHRM Demo")
         
-        st.info("Target: OrangeHRM Demo")
+        flow_option = st.selectbox(
+            "Select Targeted Flow",
+            ["Login Flow", "User Management Flow", "Job Titles Flow", "Pay Grades Flow"],
+            index=0
+        )
 
     # Initialize Engine
     engine = AIEngine(api_key=api_key)
@@ -84,13 +71,12 @@ def main():
     placeholder_example = "Example: Admin should be able to add a new Job Title with a name and description. Validate that the Job Title is saved and appears correctly in the list."
     
     feature_desc = st.text_area(
-        "Enter flow details below:",
+        "Enter flow or requirement details below:",
         placeholder=placeholder_example,
         height=200
     )
 
-    st.write("")
-    col1, col2, _ = st.columns([1, 1, 1.5])
+    col1, col2, _ = st.columns([1, 1, 2])
     generate_gherkin = col1.button("Generate Gherkin Scenarios")
     generate_script = col2.button("Generate Playwright Script")
 
@@ -107,7 +93,7 @@ def main():
         if not api_key:
             st.error("Please provide an API key in the .env file.")
         else:
-            with st.spinner("Generating scenarios..."):
+            with st.spinner("Synthesizing Gherkin..."):
                 st.session_state.gherkin_result = gherkin_gen.generate(feature_desc, flow_option)
                 st.session_state.coverage_result = coverage_anl.analyze(feature_desc, st.session_state.gherkin_result, flow_option)
 
@@ -115,32 +101,30 @@ def main():
         if not api_key:
             st.error("Please provide an API key in the .env file.")
         elif not st.session_state.gherkin_result:
-            with st.spinner("Generating scenarios first..."):
+            with st.spinner("Generating dependencies first..."):
                 st.session_state.gherkin_result = gherkin_gen.generate(feature_desc, flow_option)
                 st.session_state.playwright_result = playwright_gen.generate(st.session_state.gherkin_result, flow_option)
                 st.session_state.coverage_result = coverage_anl.analyze(feature_desc, st.session_state.gherkin_result, flow_option)
         else:
-            with st.spinner("Generating script..."):
+            with st.spinner("Forging Playwright script..."):
                 st.session_state.playwright_result = playwright_gen.generate(st.session_state.gherkin_result, flow_option)
 
-    # Output
+    # Output Showcase
     st.divider()
     if st.session_state.gherkin_result or st.session_state.playwright_result:
-        tab1, tab2, tab3 = st.tabs(["Gherkin Scenarios", "Playwright Script", "Coverage Analysis"])
+        tabs = st.tabs(["📄 Gherkin Code", "🐍 Playwright Python", "📊 Coverage Analysis"])
 
-        with tab1:
+        with tabs[0]:
             if st.session_state.gherkin_result:
                 st.code(st.session_state.gherkin_result, language="gherkin")
 
-        with tab2:
+        with tabs[1]:
             if st.session_state.playwright_result:
                 st.code(st.session_state.playwright_result, language="python")
 
-        with tab3:
+        with tabs[2]:
             if st.session_state.coverage_result:
                 st.markdown(st.session_state.coverage_result)
-    else:
-        st.info("Provide a description and click generate to see results.")
 
 if __name__ == "__main__":
     main()
