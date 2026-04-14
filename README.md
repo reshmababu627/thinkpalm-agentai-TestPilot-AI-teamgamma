@@ -39,3 +39,4 @@ streamlit run app.py
 - **Modern UI**: Dark-themed, responsive dashboard.
 - **Coverage Analysis**: Automatically spots gaps in your test strategy.
 - **POM Support**: Generates code using the Page Object Model pattern.
+"# Mini-Project" 
