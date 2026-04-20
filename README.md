@@ -1,50 +1,106 @@
-# AI-Powered Test Automation Assistant 🤖
 
-A professional-grade AI assistant designed to accelerate software testing by generating BDD scenarios and Playwright automation scripts for the **OrangeHRM** application. Powered by **OpenRouter AI**.
+# 🚀 TestPilotAI
+### *Next-Gen AI-Powered Test Automation Dashboard*
 
-## 🚀 Latest Status
-- **AI Engine**: Migrated from Google Gemini to **OpenRouter AI** with `openai/gpt-4o-mini`.
-- **UI Refresh**: Implemented a clean, standard interface with a **Light Blue** (`#E0F2FE`) professional background.
-- **Improved Contrast**: Optimized typography for readability with dark-navy fonts on light-blue surfaces.
-- **Workflow Support**: Seamless generation of Gherkin Code, Playwright Python scripts, and Coverage Gap analysis.
+**TestPilotAI** is a high-fidelity, multi-agent AI system designed to revolutionize the software testing lifecycle. By orchestrating specialized **Agentic AI** nodes, it transforms plain-text requirements into structured BDD scenarios, production-ready Playwright scripts, and comprehensive coverage gap analyses—all within a premium, modern dashboard.
 
-## ✨ Key Features
-- **BDD Scenario Synthesis**: Convert feature descriptions into actionable Gherkin steps.
-- **Playwright Forge**: Generate implementation-ready automation scripts using the **Page Object Model (POM)**.
-- **Intelligent Coverage**: Spots testing blind spots and suggests edge cases automatically.
-- **Environment Driven**: Scalable configuration via `.env` files for model and key management.
+Built for the modern QA engineer, **TestPilotAI** simplifies the bridge between requirement gathering and automation execution with state-of-the-art aesthetics and collaborative AI intelligence.
 
-## 🛠 Project Structure
-- `app.py`: The primary Streamlit dashboard logic and styling.
-- `ai_engine.py`: Core logic for OpenRouter API communication.
-- `gherkin_generator.py`: Prompt logic for BDD scenario creation.
-- `playwright_generator.py`: Engine for script forging.
-- `coverage_analyzer.py`: Automated gap detection module.
+![TestPilotAI Dashboard](./docs/screenshots/dashboard.png)
 
-## ⚙️ Setup Instructions
+---
 
-### 1. Installation
+## 📖 Project Overview
+The traditional path from requirement to automated test is often fragmented and time-consuming. **TestPilotAI** orchestrates a pipeline of specialized agents—Requirement Analyzer, BDD Generator, Automation Engineer, and Quality Auditor—to automate this workflow.
+
+**Key Capabilities:**
+- **🧠 Intelligent Interpretation**: Parses high-level feature text to extract core testing logic.
+- **📄 BDD Orchestration**: Drafts comprehensive Gherkin scenarios covering happy paths, negative flows, and edge cases.
+- **🐍 Automation Engineering**: Generates robust, Page Object Model (POM) compliant Playwright Python scripts.
+- **🔍 Quality Audit**: Identifies coverage gaps and missing validation checks using advanced visual metrics.
+
+---
+
+## 🏎️ Premium Dashboard Features
+
+The application features a state-of-the-art UI/UX designed to feel alive and responsive:
+
+*   **⚡ Modern Workspace**: A clean, card-based interface built with the Inter font and a sleek #F8FAFC professional palette.
+*   **📂 Multi-Module Sidebar**: Integrated navigation with context-aware selection for specific application flows (e.g., Login, User Management).
+*   **📊 Visual Metrics**: Real-time Heatmap and Requirements Coverage bars to visualize the depth of the generated test suite.
+*   **🏗️ Grid-Based Output**: A three-column layout designed for side-by-side comparison of Gherkin, Python scripts, and Audit results.
+*   **🔔 Interactive UI**: Top-bar navigation with search, notifications, and profile components for a full-application feel.
+*   **🎯 Targeted Context**: Pre-optimized for the **OrangeHRM** ecosystem, providing high-precision selectors and flow logic.
+
+---
+
+## 🏗️ Multi-Agent Architecture
+
+The system operates as a sophisticated pipeline where specialized agents collaborate:
+
+1.  **Requirement Analyzer**: Interprets raw requirement text and extracts core testing logic.
+2.  **BDD Generator Agent**: (`src/gherkin_generator.py`) Architected to draft comprehensive Gherkin scenarios.
+3.  **Automation Agent**: (`src/playwright_generator.py`) A specialized coding agent that transforms BDD steps into robust Playwright Python scripts.
+4.  **Coverage Analyzer Agent**: (`src/coverage_analyzer.py`) Performs a "Quality Audit" to identify missing validation checks.
+5.  **LLM Orchestrator**: (`src/ai_engine.py`) Manages stateful communication with the OpenRouter/Groq API.
+
+---
+
+## 🛠️ Setup Steps
+
+### 1️⃣ Clone the Repository
+```bash
+git clone <repository_url>
+cd mini-project
+```
+
+### 2️⃣ Install Dependencies
+Ensure you have Python 3.9+ installed:
 ```bash
 pip install -r requirements.txt
 playwright install
 ```
 
-### 2. Configuration
-Configure your `.env` file in the project root:
+### 3️⃣ Configure Environment Variables
+Create a `.env` file in the root directory:
 ```env
 OPENROUTER_API_KEY=your_key_here
-OPENROUTER_MODEL=openai/gpt-4o-mini
+OPENROUTER_MODEL=openai/gpt-4o-mini  # or your preferred model
 HTTP_REFERER=http://localhost:8501
-X_TITLE=TestAutomationAssistant
+X_TITLE=TestPilotAI
 ```
-
-### 3. Execution
-```bash
-streamlit run app.py
-```
-
-## 🌐 Application under Test
-[OrangeHRM Global Demo](https://opensource-demo.orangehrmlive.com/web/index.php/auth/login)
 
 ---
-Developed as part of the **Mini-Project** portfolio.
+
+## 🚀 How to Run
+
+Launch the premium Streamlit dashboard from the project root:
+
+```bash
+streamlit run src/app.py
+```
+
+Access the interface at `http://localhost:8501`.
+
+---
+
+## 📂 Project Structure
+```text
+mini-project/
+├── src/                    # Source Code
+│   ├── app.py              # Premium Dashboard & Orchestration
+│   ├── ai_engine.py        # backend logic & LLM connection
+│   ├── gherkin_generator.py # BDD agent logic
+│   ├── playwright_generator.py # Automation agent logic
+│   └── coverage_analyzer.py # Audit agent logic
+├── docs/
+│   └── screenshots/        # UI Visuals & Mockups
+├── .env                    # Environment Secrets
+├── requirements.txt        # Python Dependencies
+└── README.md               # Project Documentation
+```
+
+---
+
+### ⭐ Final Note
+This project demonstrates the power of **Agentic AI**—where autonomous agents collaborate to solve complex, high-value engineering challenges with speed, precision, and a premium user experience."# thinkpalm-agentai-TestPilot-AI-AutoQA-Engine" 
