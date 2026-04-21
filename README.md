@@ -105,7 +105,7 @@ http://localhost:8501
 ![Description](Screenshots/Description.png)
 
 ### 📄 Gherkin Scenario Output
-![Gherkin Generator](Screenshots/Gherkin generator.png)
+![Gherkin Generator](Screenshots/Gherkingenerator.png)
 
 
 ### 🖥️ Frontend Dashboard
@@ -115,7 +115,7 @@ http://localhost:8501
 ![Playwright Script](Screenshots/PlaywrightScript.png)
 
 ### 🔍 Coverage Analysis
-![Coverage Analysis](Screenshots/Coverge Analysis.png)
+![Coverage Analysis](Screenshots/CovergeAnalysis.png)
 
 ---
 
