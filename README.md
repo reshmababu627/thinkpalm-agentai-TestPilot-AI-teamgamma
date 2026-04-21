@@ -7,7 +7,7 @@
 
 Built for the modern QA engineer, **TestPilotAI** simplifies the bridge between requirement gathering and automation execution with state-of-the-art aesthetics and collaborative AI intelligence.
 
-![TestPilotAI Dashboard](./docs/screenshots/dashboard.png)
+![TestPilotAI Dashboard](Screenshots/Dashboard.png)
 
 ---
 
@@ -105,7 +105,7 @@ http://localhost:8501
 ![Description](Screenshots/Description.png)
 
 ### 📄 Gherkin Scenario Output
-![Gherkin Generator](Screenshots/Gherkin generator.png)
+![Gherkin Generator](Screenshots/Gherkingenerator.png)
 
 
 ### 🖥️ Frontend Dashboard
@@ -115,7 +115,7 @@ http://localhost:8501
 ![Playwright Script](Screenshots/PlaywrightScript.png)
 
 ### 🔍 Coverage Analysis
-![Coverage Analysis](Screenshots/Coverge Analysis.png)
+![Coverage Analysis](Screenshots/CovergeAnalysis.png)
 
 ---
 
@@ -249,14 +249,22 @@ mini-project/
 │   ├── ai_engine.py        # Backend logic & LLM connection
 │   ├── gherkin_generator.py # BDD agent logic
 │   ├── playwright_generator.py # Automation agent logic
-│   └── coverage_analyzer.py # Audit agent logic
+│   ├── coverage_analyzer.py # Audit agent logic
+│   └── __init__.py         # Package initialization
 ├── docs/                   # Documentation & Design
-│   ├── screenshots/        # UI Visuals & Dashboard captures
 │   ├── architecture_diagram.png # System Architecture Visual
 │   └── architecture_overview.md # Detailed 1-page write-up
+├── Screenshots/            # UI Visuals & Dashboard captures
+│   ├── CovergeAnalysis.png
+│   ├── Dashboard.png
+│   ├── Description.png
+│   ├── Gherkingenerator.png
+│   └── PlaywrightScript.png
 ├── tests/                  # Automation & Unit Tests
 │   └── test_ai_logic.py    # Sample AI engine tests
+├── scratch/                # Experimental & temporary scripts
 ├── .env                    # Environment Secrets
+├── .gitignore              # Git ignore configuration
 ├── requirements.txt        # Python Dependencies
 └── README.md               # Project Documentation
 ```
