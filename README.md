@@ -121,7 +121,7 @@ http://localhost:8501
 ## 🎥 Demo Video
 
 Watch the 5-minute demo here:  
-👉 <your-video-link>
+👉 https://www.loom.com/share/5466272a2ddb49319d2b3967b5f01787
 
 ---
 
@@ -165,6 +165,80 @@ The system operates as a sophisticated pipeline where specialized agents collabo
 
 ---
 
+## ⚡ Sample Execution: TestPilotAI Demonstration
+
+### ## 📝 Feature Input
+**Target Flow:** Login Flow  
+**Requirement Text:** 
+> "Verify the OrangeHRM login page. Admin should be able to log in with valid credentials (Admin/admin123). Invalid credentials should trigger an 'Invalid credentials' alert. Fields should not be empty."
+
+### ## 📄 Gherkin Scenarios
+```gherkin
+Feature: Login functionality for OrangeHRM
+  As a system administrator, I want to log in to the portal so that I can manage HR activities.
+
+  Background:
+    Given I am on the OrangeHRM login page
+
+  Scenario: Successful login with valid credentials
+    When I enter "Admin" in the username field
+    And I enter "admin123" in the password field
+    And I click on the Login button
+    Then I should be redirected to the Dashboard page
+
+  Scenario Outline: Failed login with invalid credentials
+    When I enter "<username>" in the username field
+    And I enter "<password>" in the password field
+    And I click on the Login button
+    Then I should see an error message "Invalid credentials"
+
+    Examples:
+      | username | password |
+      | admin    | wrong123 |
+      | user123  | admin123 |
+```
+
+### ## 🐍 Playwright Script
+```python
+import pytest
+from playwright.sync_api import Page, expect
+
+# --- Page Object style component ---
+class LoginPage:
+    def __init__(self, page: Page):
+        self.page = page
+        self.username_input = page.locator("input[name='username']")
+        self.password_input = page.locator("input[name='password']")
+        self.login_button = page.locator("button[type='submit']")
+        self.error_message = page.locator(".oxd-alert-content-text")
+
+    def navigate(self):
+        self.page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login")
+
+    def login(self, username, password):
+        self.username_input.fill(username)
+        self.password_input.fill(password)
+        self.login_button.click()
+
+# --- Automated Test Case ---
+def test_successful_login(page: Page):
+    login_page = LoginPage(page)
+    login_page.navigate()
+    login_page.login("Admin", "admin123")
+    
+    expect(page).to_have_url(re.compile(r".*/dashboard/index"))
+    expect(page.locator("h6")).to_have_text("Dashboard")
+```
+
+### ## 🔍 Coverage Gaps
+| Category | Requirement Gap | Priority |
+| :--- | :--- | :--- |
+| **Security** | Account lockout after 3 consecutive failed attempts | High |
+| **Session** | Verification of session expiration after 30 minutes of inactivity | Medium |
+| **Validation** | SQL injection attempts in username/password fields | High |
+| **Usability** | 'Forgot your password?' workflow and email trigger | Medium |
+
+---
 
 ## 📂 Project Structure
 ```text
@@ -175,8 +249,12 @@ mini-project/
 │   ├── gherkin_generator.py # BDD agent logic
 │   ├── playwright_generator.py # Automation agent logic
 │   └── coverage_analyzer.py # Audit agent logic
-├── docs/
-│   └── screenshots/        # UI Visuals & Dashboards
+├── docs/                   # Documentation & Design
+│   ├── screenshots/        # UI Visuals & Dashboard captures
+│   ├── architecture_diagram.png # System Architecture Visual
+│   └── architecture_overview.md # Detailed 1-page write-up
+├── tests/                  # Automation & Unit Tests
+│   └── test_ai_logic.py    # Sample AI engine tests
 ├── .env                    # Environment Secrets
 ├── requirements.txt        # Python Dependencies
 └── README.md               # Project Documentation
