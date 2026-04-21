@@ -101,20 +101,21 @@ http://localhost:8501
 
 ## 📸 Screenshots
 
-### 📝 Requirement Input & Test Generation
-![Requirement Input](./Screenshots/requirement_input.png)
+### 📝Description
+![Description](Screenshots/Description.png)
 
 ### 📄 Gherkin Scenario Output
-![Gherkin Output](./Screenshots/gherkin_output.png)
+![Gherkin Generator](Screenshots/Gherkin generator.png)
+
 
 ### 🖥️ Frontend Dashboard
-![Frontend](./Screenshots/dashboard.png)
+![Dashboard](Screenshots/Dashboard.png)
 
 ### 🧪 Playwright Script Output
-![Playwright Script](./Screenshots/playwright_output.png)
+![Playwright Script](Screenshots/PlaywrightScript.png)
 
 ### 🔍 Coverage Analysis
-![Coverage Analysis](./Screenshots/coverage_output.png)
+![Coverage Analysis](Screenshots/Coverge Analysis.png)
 
 ---
 
