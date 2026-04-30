@@ -8,7 +8,12 @@ load_dotenv()
 
 from ai_engine import AIEngine
 from gherkin_generator import GherkinGenerator
+import importlib
 from playwright_generator import PlaywrightGenerator
+import playwright_generator
+importlib.reload(playwright_generator)
+from playwright_generator import PlaywrightGenerator
+
 from coverage_analyzer import CoverageAnalyzer
 
 # Page configuration
@@ -185,7 +190,7 @@ def main():
         st.markdown("<p style='color: #94A3B8; font-size: 0.8rem; margin-bottom: 4px; padding-left: 10px;'>SELECT MODULE</p>", unsafe_allow_html=True)
         flow_option = st.selectbox(
             "Select Targeted Flow",
-            ["Login flow", "User management", "Job Title", "Pay grades"],
+            ["Login flow", "Users", "Job Title", "Pay grades"],
             index=0,
             label_visibility="collapsed"
         )
@@ -269,12 +274,13 @@ def main():
                 if st.session_state.current_action == "gherkin":
                     st.session_state.gherkin_result = gherkin_gen.generate(feature_desc, flow_option)
                 elif st.session_state.current_action == "script":
-                    if not st.session_state.gherkin_result:
-                        st.session_state.gherkin_result = gherkin_gen.generate(feature_desc, flow_option)
+                    # Ensure Gherkin is fresh and matches the current description before generating script
+                    st.session_state.gherkin_result = gherkin_gen.generate(feature_desc, flow_option)
                     st.session_state.playwright_result = playwright_gen.generate(st.session_state.gherkin_result, flow_option)
                 elif st.session_state.current_action == "coverage":
-                    scenarios = st.session_state.gherkin_result if st.session_state.gherkin_result else "Based on raw description."
-                    st.session_state.coverage_result = coverage_anl.analyze(feature_desc, scenarios, flow_option)
+                    # Ensure Gherkin is fresh and matches the current description before analyzing coverage
+                    st.session_state.gherkin_result = gherkin_gen.generate(feature_desc, flow_option)
+                    st.session_state.coverage_result = coverage_anl.analyze(feature_desc, st.session_state.gherkin_result, flow_option)
             except Exception as e:
                 st.error(f"Error: {e}")
             finally:

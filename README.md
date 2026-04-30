@@ -148,7 +148,7 @@ The application features a state-of-the-art UI/UX designed to feel alive and res
 ### 📍 Supported Application Flows
 The system is specialized for the following **OrangeHRM** modules:
 - 🔐 **Login Flow**: Comprehensive authentication and session management.
-- 👥 **User Management**: Creating, editing, and deleting system users.
+- 👥 **Users**: Creating, editing, and deleting system users.
 - 💼 **Job Titles**: Configuration and validation of organizational roles.
 - 💳 **Pay Grades**: Financial structures and currency mapping.
 
@@ -273,3 +273,30 @@ mini-project/
 
 ### ⭐ Final Note
 This project demonstrates the power of **Agentic AI**—where autonomous agents collaborate to solve complex, high-value engineering challenges with speed, precision, and a premium user experience.
+
+# Prompt used:
+Build an AI-powered test automation assistant with the following capabilities:
+
+1. Accept a user story or feature description as input
+2. Analyze the requirement and extract test scenarios
+3. Generate BDD test cases in Gherkin format (including positive, negative, and edge cases)
+4. Convert Gherkin steps into Playwright Python scripts using Page Object Model (POM)
+5. Perform coverage analysis to identify missing test scenarios, validations, and edge cases
+6. Display all outputs in a modern dashboard UI
+
+Technical Requirements:
+- Frontend: Streamlit
+- Backend: FastAPI
+- AI Integration: OpenAI / OpenRouter
+- Automation: Playwright Python
+- Modular architecture with separate agents:
+  - Requirement Analyzer
+  - BDD Generator
+  - Automation Generator
+  - Coverage Analyzer
+  - LLM Orchestrator
+
+Additional:
+- Provide clean UI with sections for input, Gherkin output, script output, and coverage report
+- Optimize for OrangeHRM flows (Login, Users, etc.)
+- Ensure generated Playwright scripts are configured for fast, efficient test execution without artificial delays
