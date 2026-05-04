@@ -325,7 +325,8 @@ class JobTitlesPage:
         row = self.page.locator(".oxd-table-card", has_text=re.compile(old_name)).first
         row.get_by_role("button").nth(1).click(timeout=30000)
         self.job_title_input.wait_for(state="visible", timeout=20000)
-        self.job_title_input.fill("")
+        # Wait for API to populate the old value to avoid overwriting our new value
+        expect(self.job_title_input).to_have_value(old_name, timeout=20000)
         self.job_title_input.fill(new_name)
         self.save_button.click()
 
@@ -362,7 +363,7 @@ def shared_page():
         yield page
         page.close()
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def job_titles_ctx(shared_page: Page):
     jt = JobTitlesPage(shared_page)
     jt.navigate_to_section()
@@ -377,11 +378,12 @@ def test_create_job_title_success(job_titles_ctx):
 def test_edit_job_title_success(job_titles_ctx):
     title = f"Ed_{int(time.time())}"
     job_titles_ctx.create_job_title(title)
-    job_titles_ctx.page.wait_for_load_state("networkidle")
+    job_titles_ctx.validate_success_toast()
+    job_titles_ctx.verify_job_title_in_table(title)
     
     new_title = f"{title}_Up"
     job_titles_ctx.edit_job_title(title, new_title)
-    job_titles_ctx.page.wait_for_load_state("networkidle")
+    job_titles_ctx.validate_success_toast()
     job_titles_ctx.verify_job_title_in_table(new_title)
 
 def test_view_job_title_details(job_titles_ctx):
@@ -389,22 +391,27 @@ def test_view_job_title_details(job_titles_ctx):
     row = job_titles_ctx.page.locator(".oxd-table-card", has_text=title).first
     row.get_by_role("button").nth(1).click()
     expect(job_titles_ctx.job_title_input).to_have_value(title, timeout=20000)
+    job_titles_ctx.page.get_by_role("button", name="Cancel").click()
 
 def test_delete_job_title_success(job_titles_ctx):
     title = f"Del_{int(time.time())}"
     job_titles_ctx.create_job_title(title)
-    job_titles_ctx.page.wait_for_load_state("networkidle")
+    job_titles_ctx.validate_success_toast()
+    job_titles_ctx.verify_job_title_in_table(title)
     
     job_titles_ctx.delete_job_title(title)
+    job_titles_ctx.validate_success_toast()
     job_titles_ctx.verify_job_title_in_table(title, should_exist=False)
 
 def test_create_fail_empty_name(job_titles_ctx):
     job_titles_ctx.create_job_title("")
     expect(job_titles_ctx.field_error).to_contain_text("Required", timeout=15000)
+    job_titles_ctx.page.get_by_role("button", name="Cancel").click()
 
 def test_create_fail_max_length(job_titles_ctx):
     job_titles_ctx.create_job_title("A" * 150)
     expect(job_titles_ctx.field_error).to_be_visible(timeout=15000)
+    job_titles_ctx.page.get_by_role("button", name="Cancel").click()
 
 def test_edge_case_min_length(job_titles_ctx):
     title = f"M_{int(time.time())}"[-2:]
@@ -414,6 +421,7 @@ def test_edge_case_min_length(job_titles_ctx):
 def test_edge_case_fail_invalid_min_length(job_titles_ctx):
     job_titles_ctx.create_job_title(" ")
     expect(job_titles_ctx.field_error).to_contain_text("Required", timeout=15000)
+    job_titles_ctx.page.get_by_role("button", name="Cancel").click()
 """
 
         elif flow_name == "Pay grades":
@@ -519,7 +527,7 @@ class PayGradesPage:
 def shared_page():
     from playwright.sync_api import sync_playwright
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=False, slow_mo=1000)
         page = browser.new_page()
         lp = LoginPage(page)
         lp.navigate()
@@ -527,7 +535,7 @@ def shared_page():
         yield page
         page.close()
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def pay_grades_ctx(shared_page: Page):
     pg = PayGradesPage(shared_page)
     pg.navigate_to_section()
@@ -558,6 +566,7 @@ def test_create_fail_missing_name(pay_grades_ctx):
     pay_grades_ctx.add_button.click()
     pay_grades_ctx.save_button.first.click()
     expect(pay_grades_ctx.field_error).to_contain_text("Required")
+    pay_grades_ctx.page.get_by_role("button", name="Cancel").click()
 
 def test_create_fail_invalid_salary_range(pay_grades_ctx):
     name = f"Z_Err_{int(time.time())}"
@@ -570,7 +579,9 @@ def test_create_fail_invalid_salary_range(pay_grades_ctx):
     pay_grades_ctx.min_salary_input.fill("60000")
     pay_grades_ctx.max_salary_input.fill("50000")
     pay_grades_ctx.save_button.nth(1).click()
-    expect(pay_grades_ctx.field_error).to_contain_text("higher")
+    expect(pay_grades_ctx.field_error.first).to_contain_text("lower")
+    expect(pay_grades_ctx.field_error.last).to_contain_text("higher")
+    pay_grades_ctx.navigate_to_section()
 
 def test_edge_case_salary_limits(pay_grades_ctx):
     name = f"Z_Limit_{int(time.time())}"
