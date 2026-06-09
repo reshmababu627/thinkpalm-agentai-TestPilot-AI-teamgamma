@@ -8,13 +8,14 @@ load_dotenv()
 
 from ai_engine import AIEngine
 from gherkin_generator import GherkinGenerator
-import importlib
 from playwright_generator import PlaywrightGenerator
-import playwright_generator
-importlib.reload(playwright_generator)
-from playwright_generator import PlaywrightGenerator
-
 from coverage_analyzer import CoverageAnalyzer
+from document_parser import DocumentParser
+from requirements_analyzer import RequirementsAnalyzer
+from testcase_generator import TestCaseGenerator
+from export_utils import ExportUtils
+import tempfile
+import os
 
 # Page configuration
 st.set_page_config(
@@ -221,66 +222,84 @@ def main():
     # Initialization
     api_key = os.getenv("OPENROUTER_API_KEY", "")
     engine = AIEngine(api_key=api_key)
-    gherkin_gen = GherkinGenerator(engine)
+    req_analyzer = RequirementsAnalyzer(engine)
+    tc_gen = TestCaseGenerator(engine)
     playwright_gen = PlaywrightGenerator(engine)
     coverage_anl = CoverageAnalyzer(engine)
 
-    if 'gherkin_result' not in st.session_state: st.session_state.gherkin_result = ""
+    if 'requirements_text' not in st.session_state: st.session_state.requirements_text = ""
+    if 'analysis_result' not in st.session_state: st.session_state.analysis_result = ""
+    if 'testcases_result' not in st.session_state: st.session_state.testcases_result = ""
     if 'playwright_result' not in st.session_state: st.session_state.playwright_result = ""
     if 'coverage_result' not in st.session_state: st.session_state.coverage_result = ""
     if 'is_processing' not in st.session_state: st.session_state.is_processing = False
     if 'current_action' not in st.session_state: st.session_state.current_action = None
 
-    # Main Grid: Input Section (Now full width or dominant)
+    # Input Section with File Upload
     st.markdown("""
         <div class="dashboard-card">
-            <h3 class="card-title">Input Section</h3>
-            <p class="card-subtitle">Describe the feature or scenario for the AI to process</p>
+            <h3 class="card-title">Requirement Input</h3>
+            <p class="card-subtitle">Upload requirement document or enter text manually</p>
         </div>
     """, unsafe_allow_html=True)
     
-    # Text area placed directly without the Actions div split
-    feature_desc = st.text_area(
-        "Describe Scenario/Requirement",
-        placeholder="As a user, I want to search for 'running shoes' on the homepage, select the first result, add it to the cart, and proceed to checkout with a valid address.",
-        height=200,
-        label_visibility="visible"
-    )
-    st.caption(f"{len(feature_desc)}/1000 characters")
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        uploaded_file = st.file_uploader("Upload Requirement Document (PDF, DOCX, TXT)", type=['pdf', 'docx', 'txt'])
+        if uploaded_file is not None:
+            # Save temp file
+            with tempfile.NamedTemporaryFile(delete=False, suffix=f".{uploaded_file.name.split('.')[-1]}") as tmp:
+                tmp.write(uploaded_file.getvalue())
+                tmp_path = tmp.name
+            try:
+                st.session_state.requirements_text = DocumentParser.parse(tmp_path)
+                st.success("Document parsed successfully!")
+            except Exception as e:
+                st.error(f"Error parsing document: {e}")
+            finally:
+                if os.path.exists(tmp_path):
+                    os.unlink(tmp_path)
 
-    # Spacing between Input and Buttons
+    with col2:
+        feature_desc = st.text_area(
+            "Or Describe Scenario/Requirement Manually",
+            value=st.session_state.requirements_text[:1000] if st.session_state.requirements_text else "",
+            placeholder="As a user, I want to...",
+            height=150
+        )
+        if feature_desc and feature_desc != (st.session_state.requirements_text[:1000] if st.session_state.requirements_text else ""):
+            st.session_state.requirements_text = feature_desc
+
     st.markdown('<div class="section-spacer"></div>', unsafe_allow_html=True)
 
-    # Buttons Row (The Actions div was removed, and buttons are now placed here directly)
-    btn_col1, btn_col2, btn_col3 = st.columns(3)
-    is_disabled = st.session_state.is_processing
-    
-    if btn_col1.button("📄 Generate Gherkin", key="gen_gherkin", disabled=is_disabled, use_container_width=True):
-        st.session_state.current_action = "gherkin"; st.session_state.is_processing = True; st.rerun()
-        
-    if btn_col2.button("🐍 Playwright Script", key="gen_script", disabled=is_disabled, use_container_width=True):
+    # Actions Row
+    btn_col1, btn_col2, btn_col3, btn_col4 = st.columns(4)
+    is_disabled = st.session_state.is_processing or not st.session_state.requirements_text
+
+    if btn_col1.button("📊 Analyze Requirements", disabled=is_disabled, use_container_width=True):
+        st.session_state.current_action = "analyze"; st.session_state.is_processing = True; st.rerun()
+    if btn_col2.button("📋 Generate Test Cases", disabled=is_disabled, use_container_width=True):
+        st.session_state.current_action = "testcases"; st.session_state.is_processing = True; st.rerun()
+    if btn_col3.button("🤖 Playwright Scripts", disabled=is_disabled, use_container_width=True):
         st.session_state.current_action = "script"; st.session_state.is_processing = True; st.rerun()
-        
-    if btn_col3.button("🔍 Analyze Coverage", key="gen_coverage", disabled=is_disabled, use_container_width=True):
+    if btn_col4.button("🔍 Analyze Coverage", disabled=is_disabled, use_container_width=True):
         st.session_state.current_action = "coverage"; st.session_state.is_processing = True; st.rerun()
 
-    # Spacing before Output Section
     st.markdown('<div class="section-spacer"></div>', unsafe_allow_html=True)
 
-    # Logic Handling
+    # Processing Logic
     if st.session_state.is_processing and st.session_state.current_action:
-        with st.spinner("Processing metadata..."):
+        with st.spinner("Processing with AI Engine..."):
             try:
-                if st.session_state.current_action == "gherkin":
-                    st.session_state.gherkin_result = gherkin_gen.generate(feature_desc, flow_option)
+                if st.session_state.current_action == "analyze":
+                    st.session_state.analysis_result = req_analyzer.analyze(st.session_state.requirements_text)
+                elif st.session_state.current_action == "testcases":
+                    st.session_state.testcases_result = tc_gen.generate(st.session_state.requirements_text)
                 elif st.session_state.current_action == "script":
-                    # Ensure Gherkin is fresh and matches the current description before generating script
-                    st.session_state.gherkin_result = gherkin_gen.generate(feature_desc, flow_option)
-                    st.session_state.playwright_result = playwright_gen.generate(st.session_state.gherkin_result, flow_option)
+                    # Hardcoded flow integration based on selection
+                    st.session_state.playwright_result = playwright_gen.generate(st.session_state.requirements_text, flow_option)
                 elif st.session_state.current_action == "coverage":
-                    # Ensure Gherkin is fresh and matches the current description before analyzing coverage
-                    st.session_state.gherkin_result = gherkin_gen.generate(feature_desc, flow_option)
-                    st.session_state.coverage_result = coverage_anl.analyze(feature_desc, st.session_state.gherkin_result, flow_option)
+                    st.session_state.coverage_result = coverage_anl.analyze(st.session_state.requirements_text, "Generated from requirements", flow_option)
             except Exception as e:
                 st.error(f"Error: {e}")
             finally:
@@ -288,45 +307,49 @@ def main():
                 st.session_state.current_action = None
                 st.rerun()
 
-    # Output Section
+    # Output Section Tabs
     st.markdown("""
         <div class="dashboard-card" style="padding: 24px;">
-            <h3 class="card-title">Output Section</h3>
+            <h3 class="card-title">Output Dashboard</h3>
         </div>
     """, unsafe_allow_html=True)
 
-    out_col1, out_col2, out_col3 = st.columns(3)
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Requirement Analysis", "Test Cases", "Automation Scripts", "Coverage", "Export Hub"])
 
-    with out_col1:
-        st.markdown('<div class="output-header">Gherkin Scenario</div>', unsafe_allow_html=True)
-        with st.container(height=400, border=True):
-            if st.session_state.gherkin_result:
-                st.code(st.session_state.gherkin_result, language="gherkin")
-            else:
-                st.info("No content generated.")
+    with tab1:
+        if st.session_state.analysis_result:
+            st.markdown(st.session_state.analysis_result)
+        else:
+            st.info("No analysis generated yet.")
 
-    with out_col2:
-        st.markdown('<div class="output-header">Playwright Script</div>', unsafe_allow_html=True)
-        with st.container(height=400, border=True):
-            if st.session_state.playwright_result:
-                st.code(st.session_state.playwright_result, language="python")
-            else:
-                st.info("No script generated.")
+    with tab2:
+        if st.session_state.testcases_result:
+            st.markdown(st.session_state.testcases_result)
+        else:
+            st.info("No test cases generated yet.")
 
-    with out_col3:
-        st.markdown('<div class="output-header">Coverage Analysis</div>', unsafe_allow_html=True)
-        with st.container(height=400, border=True):
-            if st.session_state.coverage_result:
-                st.markdown(st.session_state.coverage_result)
-                st.markdown("""
-                    <hr>
-                    <p style='font-size: 0.8rem; color: #64748B; margin-bottom: 4px;'>Heatmap</p>
-                    <div class="metric-bar heatmap-bar"></div>
-                    <p style='font-size: 0.8rem; color: #64748B; margin-top: 12px; margin-bottom: 4px;'>Requirements Coverage</p>
-                    <div class="metric-bar req-bar"></div>
-                """, unsafe_allow_html=True)
-            else:
-                st.info("No analysis performed.")
+    with tab3:
+        if st.session_state.playwright_result:
+            st.code(st.session_state.playwright_result, language="python")
+        else:
+            st.info("No automation script generated yet.")
+
+    with tab4:
+        if st.session_state.coverage_result:
+            st.markdown(st.session_state.coverage_result)
+        else:
+            st.info("No coverage analysis generated yet.")
+
+    with tab5:
+        st.markdown("### Export Artifacts")
+        if st.session_state.playwright_result:
+            zip_data = ExportUtils.create_framework_zip({f"test_{flow_option.replace(' ','_').lower()}.py": st.session_state.playwright_result})
+            st.download_button("📦 Download Playwright Framework (ZIP)", data=zip_data, file_name="playwright_framework.zip", mime="application/zip")
+            
+        if st.session_state.testcases_result:
+            csv_data = ExportUtils.export_test_cases_csv(st.session_state.testcases_result)
+            if csv_data:
+                st.download_button("📊 Download Test Cases (CSV)", data=csv_data, file_name="test_cases.csv", mime="text/csv")
 
 if __name__ == "__main__":
     main()
